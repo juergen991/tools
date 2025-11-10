@@ -4,4 +4,4 @@ Collection of tools, scripts and utilities.
 
 ## MCP Server
 
-- **[brave-search-rate-limited](mcp-server/brave-search-rate-limited/)** - Brave Search MCP Server with rate limiting (max 1 call/sec)
+- **[brave-search-rate-limited](mcp-server/brave-search-rate-limited/)** - Brave Search MCP Server with configurable rate limiting
