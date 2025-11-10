@@ -1,6 +1,6 @@
 # Brave Search MCP Server with Rate Limiting
 
-An MCP server for Brave Search with built-in rate limiting (max. 1 call per second).
+An MCP server for Brave Search with built-in rate limiting (configurable, default: 1 call per 1.5 seconds).
 
 ## Features
 
@@ -103,9 +103,9 @@ const RATE_LIMIT_MS = 1500; // Minimum interval between API calls in millisecond
 ```
 
 Changes:
-- `1000` = 1 second (standard, recommended)
+- `1500` = 1.5 seconds (current default)
+- `1000` = 1 second (standard for most free plans)
 - `2000` = 2 seconds (very conservative)
-- `1500` = 1.5 seconds
 - `500` = 0.5 seconds (only if your plan allows it!)
 
 **Warning:** Never set the value below your API limit!
