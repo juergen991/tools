@@ -1,90 +1,55 @@
 # File Line Comparator
 
-A Python tool for comparing two files while ignoring line order.
+A lightweight Python tool that compares two files line by line without considering order. It displays differences compactly, provides statistics, and can generate JSON or simple diff outputs on request.
 
-## Problem
+## Highlights
 
-The standard `diff` tool compares files line by line in their order. This tool instead compares the content of lines independently of their position in the file.
-
-## Features
-
-- Compares two files line by line, independent of order
-- Shows lines that only appear in file 1
-- Shows lines that only appear in file 2
-- Optional display of common lines
-- File statistics
-- Multiple output formats: Text, JSON, Simple
-- Colored console output
-- Options: ignore whitespace, ignore case
-- Output to file possible
+- Comparison purely based on line content, completely independent of position
+- Clear listing of lines that appear only in File 1 or File 2
+- Optional display of common lines including frequency per file
+- Statistics on total, unique, and common lines as well as frequency mismatches
+- Flexible output formats: colored text (default), JSON, or simple diff layout
+- Convenience options like `--ignore-whitespace`, `--ignore-case`, `--include-empty-lines`, `--no-color`
+- Output can be written directly to a file (`--output`)
 
 ## Installation
 
-No additional dependencies required. Python 3.6+ is needed.
+Python 3.6 or newer is sufficient. No additional dependencies are required.
 
 ```bash
 chmod +x file_compare.py
 ```
 
-## Usage
-
-### Basic Usage
+## Quick Start
 
 ```bash
 python file_compare.py file1.txt file2.txt
 ```
 
-### Examples
+For an overview of all arguments:
 
-**Ignore whitespace:**
 ```bash
-python file_compare.py file1.txt file2.txt --ignore-whitespace
-# or
-python file_compare.py file1.txt file2.txt -w
+python file_compare.py --help
 ```
 
-**Ignore case:**
-```bash
-python file_compare.py file1.txt file2.txt --ignore-case
-# or
-python file_compare.py file1.txt file2.txt -i
-```
+## Commonly Used Options
 
-**Combine both options:**
-```bash
-python file_compare.py file1.txt file2.txt -w -i
-```
+| Purpose | Example |
+|---------|----------|
+| Ignore whitespace at line start/end | `--ignore-whitespace` or `-w` |
+| Ignore case | `--ignore-case` or `-i` |
+| Combine both options | `-w -i` |
+| Show common lines | `--show-common` |
+| Generate JSON output | `--format json` |
+| Generate simple diff output | `--format simple` |
+| Disable colors | `--no-color` |
+| Write result to file | `--output result.txt` |
+| Include empty lines | `--include-empty-lines` |
+| Output compact JSON | `--no-pretty-json` |
 
-**Show common lines:**
-```bash
-python file_compare.py file1.txt file2.txt --show-common
-```
+## Output Modes
 
-**JSON output:**
-```bash
-python file_compare.py file1.txt file2.txt --format json
-```
-
-**Simple diff-like output:**
-```bash
-python file_compare.py file1.txt file2.txt --format simple
-```
-
-**Without colors:**
-```bash
-python file_compare.py file1.txt file2.txt --no-color
-```
-
-**Write output to file:**
-```bash
-python file_compare.py file1.txt file2.txt --output result.txt
-```
-
-## Output Formats
-
-### Text (Default)
-
-Colored, structured output with statistics:
+### Colored Text (Default)
 
 ```
 === File Comparison ===
@@ -97,19 +62,22 @@ Statistics:
   Common lines: 80
   Only in File 1: 15
   Only in File 2: 30
+  Frequency mismatches: 1
 
 Lines only in File 1:
   - Line only in file 1
-  - Another unique line
+  - Another unique line (3x)
 
 Lines only in File 2:
   + Line only in file 2
-  + Another new line
+  + Another new line (2x)
 ```
+
+The suffix **`(Nx)`** indicates how many times a specific line appears exclusively in the respective file. For lines appearing in both files, text mode only displays a hint when frequencies differ: `= apple (File1: 2x, File2: 1x)`.
 
 ### JSON
 
-Structured output for programmatic processing:
+Structured and easy to process:
 
 ```json
 {
@@ -122,124 +90,87 @@ Structured output for programmatic processing:
     "file2_unique_lines": 110,
     "common_lines": 80,
     "only_in_file1": 15,
-    "only_in_file2": 30
+    "only_in_file2": 30,
+    "frequency_mismatches": 1
   },
   "only_in_file1": ["Line 1", "Line 2"],
   "only_in_file2": ["Line A", "Line B"],
-  "common": ["Common line 1", "Common line 2"]
+  "common": ["Common line 1", "Common line 2"],
+  "frequencies": {
+    "common": {
+      "Common line 1": {"file1": 2, "file2": 2},
+      "Common line 2": {"file1": 1, "file2": 3}
+    },
+    "only_in_file1": {
+      "Line 1": 1,
+      "Line 2": 3
+    },
+    "only_in_file2": {
+      "Line A": 2,
+      "Line B": 1
+    }
+  }
 }
 ```
 
-### Simple
-
-Compact diff-like output:
+### Simple Diff
 
 ```
 < Lines only in file1.txt:
 < Line only in file 1
-< Another unique line
+< Another unique line (3x)
 
 > Lines only in file2.txt:
 > Line only in file 2
-> Another new line
+> Another new line (2x)
 ```
 
-## Options
+## Empty Lines
 
-```
-positional arguments:
-  file1                 First file to compare
-  file2                 Second file to compare
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -w, --ignore-whitespace
-                        Ignore leading and trailing whitespace
-  -i, --ignore-case     Perform case-insensitive comparison
-  -f {text,json,simple}, --format {text,json,simple}
-                        Output format (default: text)
-  --show-common         Also show common lines (text format only)
-  --no-color            Disable colored output
-  --pretty-json         Pretty-print JSON output (default: True)
-  -o OUTPUT, --output OUTPUT
-                        Write output to file instead of stdout
-```
+- By default, empty lines are ignored to exclude pure formatting differences.
+- Use `--include-empty-lines` to explicitly include empty lines in the comparison.
+- In combination with `--ignore-whitespace`, a line is considered empty if it has no content after trimming.
 
 ## Exit Codes
 
-- `0`: Files are identical (same lines, independent of order)
-- `1`: Differences found or error occurred
+- `0` – no differences found (identical line set)
+- `1` – differences or errors occurred
 
-## Use Cases
+## Typical Use Cases
 
-- Comparing configuration files where order doesn't matter
-- Comparing lists or inventories
-- Checking if all entries from one file exist in another
-- Finding missing or additional entries between two versions
-
-## Technical Details
-
-- Uses sets for efficient comparison
-- Supports UTF-8 and Latin-1 encoding
-- Automatically removes line breaks (\n, \r)
-- Empty lines are considered (except with --ignore-whitespace)
-
-## Difference to diff
-
-| Feature | diff | file_compare.py |
-|---------|------|-----------------|
-| Order matters | Yes | No |
-| Shows position | Yes | No |
-| Shows only differences | No (shows context) | Yes (optional common lines) |
-| JSON output | No | Yes |
-| Statistics | No | Yes |
+- Compare configuration files where line order may vary
+- Check if all entries of one list are present in another
+- Check inventory lists or CSV exports for missing or additional elements
+- Visualize different frequencies in two data sets
 
 ## Example Scenarios
 
-### Scenario 1: Sorted vs. unsorted list
+### 1. Sorted vs. Unsorted List
 
-**file1.txt:**
 ```
-apple
-pear
-cherry
-```
-
-**file2.txt:**
-```
-cherry
-apple
-pear
+file1.txt        file2.txt
+-----------      -----------
+apple            cherry
+pear             apple
+cherry           pear
 ```
 
-**Result:**
-```bash
+```
 python file_compare.py file1.txt file2.txt
-```
-```
-No lines unique to File 1
-No lines unique to File 2
-```
-Exit code: 0 (identical)
-
-### Scenario 2: Finding missing entries
-
-**file1.txt:**
-```
-user1
-user2
-user3
+=> Exit code 0 (identical)
 ```
 
-**file2.txt:**
+### 2. Find Missing Entries
+
 ```
-user2
-user4
-user3
+file1.txt        file2.txt
+-----------      -----------
+user1            user2
+user2            user4
+user3            user3
 ```
 
-**Result:**
-```bash
+```
 python file_compare.py file1.txt file2.txt
 ```
 ```
@@ -250,6 +181,43 @@ Lines only in File 2:
   + user4
 ```
 
+### 3. Visualize Frequencies
+
+```
+file1.txt        file2.txt
+-----------      -----------
+apple            apple
+apple            pear
+pear             pear
+cherry           pear
+```
+
+```
+python file_compare.py file1.txt file2.txt --show-common
+```
+```
+Common lines:
+  = apple (File1: 2x, File2: 1x)
+  = pear (File1: 1x, File2: 3x)
+```
+
+## Technical Details
+
+- Implemented with `Path` and `Counter` from the standard library
+- Reads files initially as UTF-8, automatically falls back to Latin-1 on errors
+- Automatically removes line breaks (`\r`, `\n`)
+- Works internally with sets and counters for fast set operations
+
+## Difference from Classic `diff`
+
+| Feature | `diff` | `file_compare.py` |
+|---------|--------|-------------------|
+| Order relevant | Yes | No |
+| Line position visible | Yes | No |
+| Context around changes | Yes | No (focuses on differences) |
+| JSON output | No | Yes |
+| Statistics & frequencies | No | Yes |
+
 ## License
 
-This tool is freely available for all purposes.
+Free to use for all purposes.
